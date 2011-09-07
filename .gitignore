@@ -1,0 +1,20 @@
+# build directory
+build/*
+ 
+# temp nibs and swap files
+*~.nib
+*.swp
+ 
+# OS X folder attributes
+.DS_Store
+ 
+# XCode 3/4
+*.mode1
+*.mode1v3
+*.mode2v3
+*.perspective
+*.perspectivev3
+*.pbxuser
+*.xcworkspace
+hexdump.xcodeproj
+xcuserdata
