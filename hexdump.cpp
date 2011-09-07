@@ -16,6 +16,7 @@ using namespace std;
 int main(int argc, char *argv[])
 {
     const int length = 16;
+    int pos = 52;
     unsigned char* buf;
     string fname;
     
@@ -37,24 +38,19 @@ int main(int argc, char *argv[])
         while (fin.good()) {
             
             // prints address
-            fout << setw(8) << setfill('0') << fin.tellg() << ": [ ";
+            fout << setw(8) << setfill('0') << fin.tellg() << ": [                                                 ] ";
             
             // reads 16 bytes from file
             buf = new unsigned char[length];
             fin.read((char*)buf, length);
-            
-            /* TODO:
-                Only iterate over buffer once by combining for loops.
-             */
+            pos = 52;
             
             // prints hex value of each byte
-            for (int i=0; i<length; i++)
-                fout << hex << setw(2) << setfill('0') << (int) buf[i] << " ";
-            
-            fout << "] ";
-            
-            // prints ASCII value of each byte
             for (int i=0; i<length; i++) {
+                fout.seekp(-(pos-=2), ios::end);
+                fout << hex << setw(2) << setfill('0') << (int) buf[i];
+                
+                fout.seekp(0, ios::end);
                 if (isprint(buf[i])) fout << buf[i];
                 else                 fout << ".";
             }
@@ -63,7 +59,7 @@ int main(int argc, char *argv[])
             cout << ".";
         }
         cout << "done.";
-    // if unable to open streams, prints error
+        // if unable to open streams, prints error
     } else {
         cout << "Error: could not locate file.";
     }
