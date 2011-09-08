@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
 {
     const int length = 16;
     int pos = 52;
-    unsigned char* buf;
+    unsigned char* fbuf;
     string fname;
     
     // read file name from user
@@ -34,25 +34,30 @@ int main(int argc, char *argv[])
         // write header line
         fout << "HEX DUMP FOR FILE \""<< fname << "\":\n\n";
         
+        fin.seekg(0, ios::end);
+        int fbuflen = (int) fin.tellg();
+        fbuf = new unsigned char[fbuflen];
+        
+        fin.seekg(0, ios::beg);
+        fin.read((char*)fbuf, fbuflen);
+        fin.close();
+        
         // while able to read
-        while (fin.good()) {
+        // while (fin.good()) {
+        for (int j=0; j<fbuflen; j+=length) {
             
             // prints address
-            fout << setw(8) << setfill('0') << fin.tellg() << ": [                                                 ] ";
-            
-            // reads 16 bytes from file
-            buf = new unsigned char[length];
-            fin.read((char*)buf, length);
+            fout << hex << setw(8) << setfill('0') << j << ": [                                                 ] ";
             pos = 52;
             
             // prints hex value of each byte
             for (int i=0; i<length; i++) {
                 fout.seekp(-(pos-=2), ios::end);
-                fout << hex << setw(2) << setfill('0') << (int) buf[i];
+                fout << hex << setw(2) << setfill('0') << (int) fbuf[j+i];
                 
                 fout.seekp(0, ios::end);
-                if (isprint(buf[i])) fout << buf[i];
-                else                 fout << ".";
+                if (isprint(fbuf[j+i])) fout << fbuf[j+i];
+                else                    fout << ".";
             }
             
             fout << "\n";
