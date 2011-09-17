@@ -2,7 +2,7 @@
 //  Hexdump.cpp
 //
 //  Auth: Marshall Cottrell
-//        Daniel Sabastian
+//        Daniel Sebastian
 //  Date: 09/06/11
 //  Desc: C++ hexdump implementation.
 //
@@ -10,8 +10,11 @@
 #include <iostream>
 #include <fstream>
 #include <iomanip>
+#include <string>
 
 using namespace std;
+
+extern "C" void hexConvert(char data[], char hexDigits[], char asciiData[]);
 
 int main(int argc, char *argv[])
 {
