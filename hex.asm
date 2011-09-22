@@ -1,3 +1,4 @@
+;*******************************************************************************
 ;Filename: hex.asm
 ;Authors: Daniel Sebastian
 ;         Marshall Cottrell
@@ -7,36 +8,42 @@
 ;this function will populate with (ascii-encoded) hexadecimal characters, and
 ;the 16 byte array that will contain the ascii representation of the data found
 ;in the first array (with non-printable characters stored as: '.').
+;*******************************************************************************
 
 .DATA
 ALIGN 16
+
+;These values are mathematical constants and bitmasks used throughout the
+;program.
 fifteen OWORD 0F0F0F0F0F0F0F0F0F0F0F0F0F0F0F0FH
 nine OWORD 09090909090909090909090909090909H
-or_mask OWORD 07070707070707070707070707070707H
 low_offset OWORD 30303030303030303030303030303030H
+or_mask OWORD 07070707070707070707070707070707H
 shiftmask_zero OWORD 0A800908800706800504800302800100H
 shiftmask_one OWORD 0D0C800B0A8009088007068005048003H
 shiftmask_two OWORD 800F0E800D0C800B0A80090880070680H
 spacemask OWORD 00200000200000200000200000200000H
-nonprinting_mask_low OWORD 19191919191919191919191919191919H
+nonprinting_mask_low OWORD 1F1F1F1F1F1F1F1F1F1F1F1F1F1F1F1FH
 nonprinting_mask_high OWORD 7E7E7E7E7E7E7E7E7E7E7E7E7E7E7E7EH
 dotmask OWORD 2E2E2E2E2E2E2E2E2E2E2E2E2E2E2E2EH
 spaces OWORD 20202020202020202020202020202020H
+
 .CODE
 
 ;The hexConvert function. The only function in the file. See the header for
-;details.
+;details regarding its purpose.
 hexConvert PROC hexDigits:QWORD, asciiData:QWORD, data:QWORD, byteCount:QWORD
 
-;Move the data into two identical 128-bit XMM registers for faster processing.
-;Make copies for obtaining the hex digits later.
+;Move the data into three identical 128-bit XMM registers for faster
+;processing. Make copies for obtaining the hex digits later.
 MOVDQU XMM0, OWORD PTR [R8]
-MOVDQU XMM1, OWORD PTR [R8]
+MOVDQU XMM1, XMM0
 MOVDQA XMM8, XMM0
 
 ;Use masks to find values that are above the minimum and values that are above
 ;the maximum printable ASCII characters. XOR the results. values lower than
-;both will be zero, as well as values higher than both.
+;both will be zero, as well as values higher than both. Thus, only the bits
+;corresponding to printable characters will be set.
 MOVDQA XMM9, XMM8
 MOVDQA XMM10, XMM8
 PCMPGTB XMM9, nonprinting_mask_low
@@ -94,7 +101,8 @@ MOVHLPS XMM1, XMM0
 MOVLHPS XMM1, XMM2
 
 ;Extracts the byte (hex digit) pairs into new registers, leaving room for
-;spaces. At this point, the hex digit data is fully processed.
+;spaces. The spaces are then ORed into position. At this point, the hex digit
+;data is fully processed.
 PSHUFB XMM0, shiftmask_zero
 PSHUFB XMM1, shiftmask_one
 PSHUFB XMM2, shiftmask_two
